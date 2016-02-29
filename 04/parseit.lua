@@ -181,39 +181,40 @@ function parse_statement()
         return true, {INPUT_STMT, ast}
 
     elseif matchString("if") then
-        local wasitcalled = false
+        local newast1, newast2, newast3
         good, ast = parse_expr()
         if not good then
             return false, nil
         end
-        while true do
-            
-            if matchString("end") then
-                if not wasitcalled then
-                    return true, {IF_STMT, ast, {STMT_LIST}}
-                end
-                return true, ast
-            end
-            if matchString("elseif") then
-                good, local newast1 = parse_expr()
-                if not good then
-                    return false, nil
-                end
-                good, local newast2 = parse_expr()
-                if not good then
-                    return false, nil
-                end
-                
-                end
-                
-            good, newast = parse_stmt_list()
+	good, newast = parse_stmt_list()
+        if not good then
+            return false, nil
+        end
+	ast = {IF_STMT, ast, newast}
+	while true do
+	if matchString("elseif") then
+            good, newast1 = parse_expr()
             if not good then
                 return false, nil
             end
-            ast = {IF_STMT, ast, newast}
-            wasitcalled = true
+            good, newast2 = parse_stmt_list()
+            if not good then
+                return false, nil
+            end
+            table.insert(ast, newast1)
+            table.insert(ast, newast2)
+        elseif matchString("else") then
+            good, newast3 = parse_stmt_list()
+            if not good then
+                return false, nil
+            end
+            table.insert(ast, newast3)
+        elseif matchString("end") then
+            return true,  ast
+        else 
+            return false, nil
         end
-        
+       end 
     elseif matchString("while") then
         good, ast = parse_expr()
         if not good then
