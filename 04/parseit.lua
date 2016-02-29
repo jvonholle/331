@@ -21,13 +21,13 @@ local lexstr = ""
 local lexcat = 0
 
 -- Lexeme Categories
-local KEY =       1
-local ID =        2
-local NUMLIT =    3
-local STRINGLIT = 4
-local OP =        5
-local PUNCT =     6
-local MAL =       7
+local KEY =    1
+local ID =     2
+local NUMLIT = 3
+local STRLIT = 4
+local OP =     5
+local PUNCT =  6
+local MAL =    7
 
 -- Symbolic Constants for AST
 STMT_LIST =  1
@@ -143,19 +143,19 @@ function parse_stmt_list()
 end
 
 function parse_statement()
-    local good, ast1, ast2, savelex
+    local good, ast, newast, savelex
 
     if matchString("set") then
-        good, ast1 = parse_lvalue()
+        good, ast = parse_lvalue()
         if not good then
             return false, nil
         end
         if matchString("=") then 
-        good, ast2 = parse_expr()
+        good, newast = parse_expr()
         if not good then
             return false, nil
         end
-        return true, {SET_STMT, ast1, ast2}
+        return true, {SET_STMT, ast, newast}
         end
 
     elseif matchString("print") then
@@ -164,66 +164,67 @@ function parse_statement()
             return true, {PRINT_STMT,{STRLIT_VAL, savelex}}
         end
 
-        good, ast1 = parse_expr()
+        good, ast = parse_expr()
         if not good then 
             return false, nil
         end
-        return true, {PRINT_STMT,ast1}
+        return true, {PRINT_STMT,ast}
 
     elseif matchString("nl") then
-        return true, {NL_STMT,ast1}
+        return true, {NL_STMT,ast}
 
     elseif matchString("input") then
-        good, ast1 = parse_lvalue()
+        good, ast = parse_lvalue()
         if not good then
             return false, nil
         end
-        return true, {INPUT_STMT, ast1}
+        return true, {INPUT_STMT, ast}
 
     elseif matchString("if") then
-        good, ast1 = parse_expr()
+        local wasitcalled = false
+        good, ast = parse_expr()
         if not good then
             return false, nil
         end
-        good, ast2 = parse_stmt_list()
-        if not good then
-            return false, nil
+        while true do
+            
+            if matchString("end") then
+                if not wasitcalled then
+                    return true, {IF_STMT, ast, {STMT_LIST}}
+                end
+                return true, ast
+            end
+            if matchString("elseif") then
+                good, local newast1 = parse_expr()
+                if not good then
+                    return false, nil
+                end
+                good, local newast2 = parse_expr()
+                if not good then
+                    return false, nil
+                end
+                
+                end
+                
+            good, newast = parse_stmt_list()
+            if not good then
+                return false, nil
+            end
+            ast = {IF_STMT, ast, newast}
+            wasitcalled = true
         end
-        if matchString("elseif") then
-            local ast3, ast4
-            good, ast3 = parse_expr()
-            if not good then
-                return false, nil
-            end
-            good, ast4 = parse_stmt_list()
-            if not good then
-                return false, nil
-            end
-            table.insert(ast1, ast3)
-            table.insert(ast2, ast4)
-        elseif matchString("else") then
-            local ast3
-            good, ast3 = parse_stmt_list()
-            if not good then
-                return false, nil
-            end
-            table.insert(ast2, ast3)
-        elseif matchString("end") then
-            return true, {IF_STMT, ast1, ast2}
-        else
-            return false, nil
-        end
+        
     elseif matchString("while") then
-        good, ast1 = parse_expr()
+        good, ast = parse_expr()
         if not good then
             return false, nil
         end
-        good, ast2 = parse_stmt_list()
+        good, newast = parse_stmt_list()
         if not good then
             return false, nil
         end
         if matchString("end") then 
-            return true, {WHILE_STMT, ast1, ast2}
+            return true, {WHILE_STMT, ast, newast}
         else
             return false, nil
         end
@@ -325,7 +326,7 @@ function parse_factor()
         return true, {NUMLIT_VAL, savelex}
     elseif matchCat(OP) then
         good, ast = parse_factor()
-        if not good then
+        if not good or (savelex ~= "+" and savelex~= "-") then
             return false, nil
         end
         return true, {{UN_OP, savelex}, ast}
@@ -365,13 +366,16 @@ function parse_lvalue()
     elseif matchCat(NUMLIT) then
         return false, nil
     elseif matchCat(OP) then
-        good, ast = parse_factor()
-        if not good then
+        if matchString("+") or matchString("-") then
+            good, ast = parse_factor()
+            if not good then
+                return false, nil
+            end
+            return true, {{UN_OP, savelex}, ast}
+        else
             return false, nil
         end
-        return true, {{UN_OP, savelex}, ast}
-        end
-
+    end
 end
 
 return parseit
