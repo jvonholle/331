@@ -7,16 +7,7 @@ module PA5 where
 
 import Data.Fixed -- for `mod`
 
--- collatzCounts
--- list of integers where i is the number of iterations
---   it takes to get from i+1 to 1
---
---   ex:
---      first 10 [0,1,7,2,5,8,16,3,19,6]
--- 
--- Collatz function is the following:
---     c(n) = 3n + 1 if n is odd
---     c(n) = n/2 if n is even
+
 
 -- collatz
 -- given number and count
@@ -32,7 +23,15 @@ collatz n count =
 collatzS n = collatz (n+1) 0
             
 -- collatzCounts
--- maps collatzS from 0 to infinity 
+-- list of integers where the value at i is the number of iterations
+--   it takes to get from i+1 to 1 using the Collatz function
+--
+--   ex:
+--      first 10 [0,1,7,2,5,8,16,3,19,6]
+-- 
+-- Collatz function is the following:
+--     c(n) = 3n + 1 if n is odd
+--     c(n) = n/2 if n is even
 collatzCounts = map collatzS [0..]
 
 -- listfinder
