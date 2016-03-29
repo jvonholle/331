@@ -16,7 +16,7 @@ local state       -- State for above iterator
 local lexer_out_s -- Return Value #1 from above iterator
 local lexer_out_c -- Return Value #2 from above iterator
 
---current lexeme
+-- Current lexeme
 local lexstr = ""
 local lexcat = 0
 
@@ -30,21 +30,23 @@ local PUNCT =  6
 local MAL =    7
 
 -- Symbolic Constants for AST
-STMT_LIST =  1
-SET_STMT =   2
-PRINT_STMT = 3
-NL_STMT =    4
-INPUT_STMT = 5
-IF_STMT =    6
-WHILE_STMT = 7
-BIN_OP =     8 
-UN_OP =      9
-NUMLIT_VAL = 10
-STRLIT_VAL = 11
-ID_VAL =     12
-ARRAY_REF =  13
+local STMT_LIST =  1
+local SET_STMT =   2
+local PRINT_STMT = 3
+local NL_STMT =    4
+local INPUT_STMT = 5
+local IF_STMT =    6
+local WHILE_STMT = 7
+local BIN_OP =     8 
+local UN_OP =      9
+local NUMLIT_VAL = 10
+local STRLIT_VAL = 11
+local ID_VAL =     12
+local ARRAY_REF =  13
 
-
+-- advance
+-- checks if preferOp needs to be called
+-- then advances iterator through lexer output
 local function advance()
     if lexer_out_c == ID or lexer_out_c == NUMLIT or 
         lexer_out_s == ")" or lexer_out_s == "]" then
@@ -60,16 +62,24 @@ local function advance()
 
 end
 
-
+-- init
+-- takes program
+-- calls lexer.lex on program, lexing it
 local function init(prog)
     iter, state, lexer_out_s = lexer.lex(prog)
     advance()
 end
 
+-- atEnd()
+-- Returns if it at end of program
 local function atEnd()
     return lexcat == 0
 end
 
+-- matchString
+-- checks given string against current lexeme
+-- returns true and advances if they match
+-- returns false otherwise
 local function matchString(s)
     if lexstr == s then
         advance()
@@ -79,6 +89,10 @@ local function matchString(s)
     end
 end
 
+-- matchCat
+-- checks given category against current lexeme
+-- returns true and advances if they match
+-- returns false otherwise
 local function matchCat(c)
     if lexcat == c then
         advance()
@@ -88,6 +102,8 @@ local function matchCat(c)
     end
 end
 
+-- function "prototypes"
+-- see below for more detailed description
 local parse_program
 local parse_stmt_list
 local parse_expr
@@ -96,6 +112,9 @@ local parse_term
 local parse_factor
 local parse_lvalue
 
+-- Main parsing function
+-- calls init(prog) which lexes
+-- returns parsed program from parse_program
 function parseit.parse(prog)
 
     init(prog)
@@ -109,6 +128,9 @@ function parseit.parse(prog)
     end
 end
 
+-- parse_program
+-- Parses start symbol program
+-- returns ast returned by parse_XYZ
 function parse_program()
     local good, ast
     good, ast = parse_stmt_list()
@@ -121,6 +143,10 @@ function parse_program()
     return true, ast
 end
 
+-- parse_XYZ
+-- parsing function for nonterminal state XYZ
+-- returns true and abstract syntax tree if correct
+-- false and nil if there is a syntax error
 function parse_stmt_list()
     local good, ast, newast
     ast = {STMT_LIST}
@@ -141,6 +167,7 @@ function parse_stmt_list()
         table.insert(ast, newast)
     end
 end
+
 
 function parse_statement()
     local good, ast, newast, savelex

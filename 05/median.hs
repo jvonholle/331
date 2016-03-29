@@ -5,32 +5,46 @@
 
 module Main where
 
-import System.IO
-import Data.List
+import System.IO -- for hFlush
+import Data.List -- for sort
 
+-- median
+-- takes a list
+-- retuns median
 median list = mid where
     mid = (sList !! (div (length sList) 2)) where
         sList = sort list
 
-getNums = do
-    putStr "Type a number, leave it empty to compute median: "
-    hFlush stdout
-    num <- getLine
-    if num == "" then do
-        return getNums
-    else d
-        rest <- getNums
-
+-- printMed
+-- takes input from user 
+--      #####################################################################
+--      # ONLY TAKES A LIST ENCLOSED BY SQUARE BRAKETS SEPARATED BY COMMAS  #
+--      #####################################################################
+-- prints median of given list
+-- asks user if they want to compute another
+-- loops if chosen, returns if not
 printMed = do
-    putStrLn "Hi, I'm here to calculate a median for you!"
-    putStrLn "Here we go!"
-    med <- median getNums
-    putStrLn ("Your median is: " ++ med)
-    putStr "Do you want to compute another? (y/n): "
+    putStrLn ""
+    putStr "Enter comma separated list of numbers, enclosed in square braces: "
     hFlush stdout
     line <- getLine
-    let check = line
-    if check == "y" then printMed
-    else return()
+    let n = read line
 
-main = printMed
+    if n/= [0..] then do
+        putStrLn ""
+        putStr "Median is: "
+        putStrLn (show (median n))
+        putStrLn ""
+        putStr "Do you want to compute another? (y/n): "
+        hFlush stdout
+        line1 <- getLine
+        if line1 == "y" then printMed
+        else return ()
+    else printMed
+
+-- main
+-- calls printMed
+main = do
+    printMed
+    putStrLn "Bye Bye!"
+    return ()
