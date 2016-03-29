@@ -17,15 +17,15 @@ median list = mid where
 
 -- printMed
 -- takes input from user 
---      #####################################################################
---      # ONLY TAKES A LIST ENCLOSED BY SQUARE BRAKETS SEPARATED BY COMMAS  #
---      #####################################################################
+--      ####################################################################
+--      # ONLY TAKES A LIST ENCLOSED BY SQUARE BRAKETS SEPARATED BY COMMAS #
+--      ####################################################################
 -- prints median of given list
 -- asks user if they want to compute another
 -- loops if chosen, returns if not
 printMed = do
     putStrLn ""
-    putStr "Enter comma separated list of numbers, enclosed in square braces: "
+    putStr "Enter comma separated list of numbers, enclosed in square braces (ex: [1,2,3]): "
     hFlush stdout
     line <- getLine
     let n = read line
