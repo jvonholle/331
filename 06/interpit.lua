@@ -120,7 +120,7 @@ function interpit.interp(ast, state, incall, outcall)
                 elseif(type(ast[2][1]) == "table" and ast[3][1] == ID_VAL) then
                     return interp_op(ast[2]) + strToNum(state.s[ast[3][2]])
                 elseif(type(ast[2][1]) == "table" and ast[3][1] == ARRAY_REF) then
-                    return interp_op(ast[2]) + strToNum(state.a[ast[3][2][1]][ast[3][3][1]])
+                    return interp_op(ast[2]) + strToNum(state.a[ast[3][2][2]][strToNum(ast[3][3][2]))
                 end
             elseif(ast[1][2] == "-") then
                if(ast[2][1] == NUMLIT_VAL and ast[3][1] == NUMLIT_VAL) then
@@ -136,7 +136,7 @@ function interpit.interp(ast, state, incall, outcall)
                 elseif(type(ast[2][1]) == "table" and ast[3][1] == ID_VAL) then
                     return interp_op(ast[2]) - strToNum(state.s[ast[3][2]])
                 elseif(type(ast[2][1]) == "table" and ast[3][1] == ARRAY_REF) then
-                    return interp_op(ast[2]) - strToNum(state.a[ast[3][2][1]][ast[3][3][1]])
+                    return interp_op(ast[2]) - strToNum(state.a[ast[3][2][2]][strToNum(ast[3][3][2]))
                 end 
             elseif(ast[1][2] == "*") then
                if(ast[2][1] == NUMLIT_VAL and ast[3][1] == NUMLIT_VAL) then
@@ -152,7 +152,7 @@ function interpit.interp(ast, state, incall, outcall)
                 elseif(type(ast[2][1]) == "table" and ast[3][1] == ID_VAL) then
                     return interp_op(ast[2]) * strToNum(state.s[ast[3][2]])
                 elseif(type(ast[2][1]) == "table" and ast[3][1] == ARRAY_REF) then
-                    return interp_op(ast[2]) * strToNum(state.a[ast[3][2][1]][ast[3][3][1]])
+                    return interp_op(ast[2]) * strToNum(state.a[ast[3][2][2]][strToNum(ast[3][3][2]))
                 end 
             elseif(ast[1][2] == "/") then
                if(ast[2][1] == NUMLIT_VAL and ast[3][1] == NUMLIT_VAL) then
@@ -168,7 +168,7 @@ function interpit.interp(ast, state, incall, outcall)
                 elseif(type(ast[2][1]) == "table" and ast[3][1] == ID_VAL) then
                     return toInt(interp_op(ast[2]) / strToNum(state.s[ast[3][2]]))
                 elseif(type(ast[2][1]) == "table" and ast[3][1] == ARRAY_REF) then
-                    return toInt(interp_op(ast[2]) / strToNum(state.a[ast[3][2][1]][ast[3][3][1]]))
+                    return toInt(interp_op(ast[2]) / strToNum(state.a[ast[3][2][2]][strToNum(ast[3][3][2])))
                 end 
             elseif(ast[1][2] == "%") then
                if(ast[2][1] == NUMLIT_VAL and ast[3][1] == NUMLIT_VAL) then
@@ -184,7 +184,7 @@ function interpit.interp(ast, state, incall, outcall)
                 elseif(type(ast[2][1]) == "table" and ast[3][1] == ID_VAL) then
                     return interp_op(ast[2]) % strToNum(state.s[ast[3][2]])
                 elseif(type(ast[2][1]) == "table" and ast[3][1] == ARRAY_REF) then
-                    return interp_op(ast[2]) % strToNum(state.a[ast[3][2][1]][ast[3][3][1]])
+                    return interp_op(ast[2]) % strToNum(state.a[ast[3][2][2]][strToNum(ast[3][3][2]))
                 end
             elseif(ast[1][2] == "==") then
                if(ast[2][1] == NUMLIT_VAL and ast[3][1] == NUMLIT_VAL) then
@@ -200,7 +200,7 @@ function interpit.interp(ast, state, incall, outcall)
                 elseif(type(ast[2][1]) == "table" and ast[3][1] == ID_VAL) then
                     return interp_op(ast[2]) % strToNum(state.s[ast[3][2]])
                 elseif(type(ast[2][1]) == "table" and ast[3][1] == ARRAY_REF) then
-                    return interp_op(ast[2]) % strToNum(state.a[ast[3][2][1]][ast[3][3][1]])
+                    return interp_op(ast[2]) % strToNum(state.a[ast[3][2][2]][strToNum(ast[3][3][2]))
                 end
                 
             elseif(ast[1][2] == "!=") then
@@ -213,11 +213,11 @@ function interpit.interp(ast, state, incall, outcall)
                 elseif(ast[2][1] == ID_VAL and ast[3][1] == ID_VAL) then
                     return boolToInt(strToNum(state.s[ast[2][2]]) ~= strToNum(state.s[ast[3][2]]))
                 elseif(type(ast[2][1]) == "table" and ast[3][1] == NUMLIT_VAL) then
-                    return boolToInt(interp_op(ast[2]) == strToNum(ast[3][2])))
+                    return boolToInt(interp_op(ast[2]) == strToNum(ast[3][2]))
                 elseif(type(ast[2][1]) == "table" and ast[3][1] == ID_VAL) then
                     return boolToInt(interp_op(ast[2]) == strToNum(state.s[ast[3][2]]))
                 elseif(type(ast[2][1]) == "table" and ast[3][1] == ARRAY_REF) then
-                    return boolToInt(interp_op(ast[2]) strToNum(state.a[ast[3][2][1]][ast[3][3][1]]))
+                    return boolToInt(interp_op(ast[2]) == strToNum(state.a[ast[3][2][2]][strToNum(ast[3][3][1])]))
                 end
                 
             elseif(ast[1][2] == "<") then
@@ -234,7 +234,7 @@ function interpit.interp(ast, state, incall, outcall)
                 elseif(type(ast[2][1]) == "table" and ast[3][1] == ID_VAL) then
                     return boolToInt(interp_op(ast[2]) < strToNum(state.s[ast[3][2]]))
                 elseif(type(ast[2][1]) == "table" and ast[3][1] == ARRAY_REF) then
-                    return boolToInt(interp_op(ast[2]) < strToNum(state.a[ast[3][2][1]][ast[3][3][1]]))
+                    return boolToInt(interp_op(ast[2]) < strToNum(state.a[ast[3][2][2]][strToNum(ast[3][3][2])))
                 end
                 
             elseif(ast[1][2] == "<=") then
@@ -251,7 +251,7 @@ function interpit.interp(ast, state, incall, outcall)
                 elseif(type(ast[2][1]) == "table" and ast[3][1] == ID_VAL) then
                     return boolToInt(interp_op(ast[2]) % strToNum(state.s[ast[3][2]]))
                 elseif(type(ast[2][1]) == "table" and ast[3][1] == ARRAY_REF) then
-                    return boolToInt(interp_op(ast[2]) % strToNum(state.a[ast[3][2][1]][ast[3][3][1]]))
+                    return boolToInt(interp_op(ast[2]) % strToNum(state.a[ast[3][2][2]][strToNum(ast[3][3][2])))
                 end
                 
             elseif(ast[1][2] == ">") then
@@ -268,7 +268,7 @@ function interpit.interp(ast, state, incall, outcall)
                 elseif(type(ast[2][1]) == "table" and ast[3][1] == ID_VAL) then
                     return interp_op(ast[2]) % strToNum(state.s[ast[3][2]])
                 elseif(type(ast[2][1]) == "table" and ast[3][1] == ARRAY_REF) then
-                    return interp_op(ast[2]) % strToNum(state.a[ast[3][2][1]][ast[3][3][1]])
+                    return interp_op(ast[2]) % strToNum(state.a[ast[3][2][2]][strToNum(ast[3][3][2]))
                 end
                 
             elseif(ast[1][2] == ">=") then
@@ -285,7 +285,7 @@ function interpit.interp(ast, state, incall, outcall)
                 elseif(type(ast[2][1]) == "table" and ast[3][1] == ID_VAL) then
                     return interp_op(ast[2]) % strToNum(state.s[ast[3][2]])
                 elseif(type(ast[2][1]) == "table" and ast[3][1] == ARRAY_REF) then
-                    return interp_op(ast[2]) % strToNum(state.a[ast[3][2][1]][ast[3][3][1]])
+                    return interp_op(ast[2]) % strToNum(state.a[ast[3][2][2]][strToNum(ast[3][3][2]))
                 end
                 
             end
