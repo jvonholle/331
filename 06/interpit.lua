@@ -82,34 +82,291 @@ end
 -- Returns state updates with changed variable values
 function interpit.interp(ast, state, incall, outcall)
     -- Each local interpretation function is given the AST for the
-    -- partion of the code it is interperating
+    -- portion of the code it is interperating
     
+    -- function boolToInt
+    -- helper function,
+    -- returns 1 if passed object evaluates to true, 0 otherwise
+    local function boolToInt(func)
+        if(func) then
+            return 1
+        else
+            return 0
+        end
+    end
+    
+    
+    -- function interp_op
+    -- takes current ast
+    -- handles uniary and binary operators, returns what it needs to
+    -- nasty but it should work
+    local function interp_op(ast)
+        assert(ast[1][1] == BIN_OP or ast[1][1] == UN_OP)
+        
+        if(ast[1][1] == BIN_OP) then
+            if(ast[1][2] == "+") then
+                if(ast[2][1] == NUMLIT_VAL and ast[3][1] == NUMLIT_VAL) then
+                    return strToNum(ast[2][2]) + strToNum(ast[3][2])
+                elseif(ast[2][1] == NUMLIT_VAL and ast[3][1] == ID_VAL) then
+                    return strToNum(ast[2][2]) + strToNum(state.s[ast[3][2]])
+                elseif(ast[2][1] == ID_VAL and ast[3][1] == NUMLIT_VAL) then
+                    return strToNum(state.s[ast[2][2]]) + strToNum(ast[3][2])
+                elseif(ast[2][1] == ID_VAL and ast[3][1] == ID_VAL) then
+                    return strToNum(state.s[ast[2][2]]) + strToNum(state.s[ast[3][2]])
+                elseif(ast[2][1] == ARRAY_REF and ast[3][1] == NUMLIT_VAL) then
+                    return strToNum(state.a[ast[3][2][2]][ast[3][3][2]]) + strToNum(ast[3][2])
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == NUMLIT_VAL) then
+                    return interp_op(ast[2]) + strToNum(ast[3][2])
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == ID_VAL) then
+                    return interp_op(ast[2]) + strToNum(state.s[ast[3][2]])
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == ARRAY_REF) then
+                    return interp_op(ast[2]) + strToNum(state.a[ast[3][2][1]][ast[3][3][1]])
+                end
+            elseif(ast[1][2] == "-") then
+               if(ast[2][1] == NUMLIT_VAL and ast[3][1] == NUMLIT_VAL) then
+                    return strToNum(ast[2][2]) - strToNum(ast[3][2])
+                elseif(ast[2][1] == NUMLIT_VAL and ast[3][1] == ID_VAL) then
+                    return strToNum(ast[2][2]) - state.s[arr[3][2]]
+                elseif(ast[2][1] == ID_VAL and ast[3][1] == NUMLIT_VAL) then
+                    return strToNum(state.s[ast[2][2]]) - strToNum(ast[3][2])
+                elseif(ast[2][1] == ID_VAL and ast[3][1] == ID_VAL) then
+                    return strToNum(state.s[ast[2][2]]) - strToNum(state.s[ast[3][2]])
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == NUMLIT_VAL) then
+                    return interp_op(ast[2]) - strToNum(ast[3][2])
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == ID_VAL) then
+                    return interp_op(ast[2]) - strToNum(state.s[ast[3][2]])
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == ARRAY_REF) then
+                    return interp_op(ast[2]) - strToNum(state.a[ast[3][2][1]][ast[3][3][1]])
+                end 
+            elseif(ast[1][2] == "*") then
+               if(ast[2][1] == NUMLIT_VAL and ast[3][1] == NUMLIT_VAL) then
+                    return toInt(strToNum(ast[2][2]) * strToNum(ast[3][2]))
+                elseif(ast[2][1] == NUMLIT_VAL and ast[3][1] == ID_VAL) then
+                    return toInt(strToNum(ast[2][2]) * state.s[arr[3][2]])
+                elseif(ast[2][1] == ID_VAL and ast[3][1] == NUMLIT_VAL) then
+                    return toInt(strToNum(state.s[ast[2][2]]) * strToNum(ast[3][2]))
+                elseif(ast[2][1] == ID_VAL and ast[3][1] == ID_VAL) then
+                    return toInt(strToNum(state.s[ast[2][2]]) * strToNum(state.s[ast[3][2]]))
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == NUMLIT_VAL) then
+                    return interp_op(ast[2]) * strToNum(ast[3][2])
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == ID_VAL) then
+                    return interp_op(ast[2]) * strToNum(state.s[ast[3][2]])
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == ARRAY_REF) then
+                    return interp_op(ast[2]) * strToNum(state.a[ast[3][2][1]][ast[3][3][1]])
+                end 
+            elseif(ast[1][2] == "/") then
+               if(ast[2][1] == NUMLIT_VAL and ast[3][1] == NUMLIT_VAL) then
+                    return toInt(strToNum(ast[2][2]) / strToNum(ast[3][2]))
+                elseif(ast[2][1] == NUMLIT_VAL and ast[3][1] == ID_VAL) then
+                    return toInt(strToNum(ast[2][2]) / state.s[arr[3][2]])
+                elseif(ast[2][1] == ID_VAL and ast[3][1] == NUMLIT_VAL) then
+                    return toInt(strToNum(state.s[ast[2][2]]) / strToNum(ast[3][2]))
+                elseif(ast[2][1] == ID_VAL and ast[3][1] == ID_VAL) then
+                    return toInt(strToNum(state.s[ast[2][2]]) / strToNum(state.s[ast[3][2]]))
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == NUMLIT_VAL) then
+                    return toInt(interp_op(ast[2]) / strToNum(ast[3][2]))
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == ID_VAL) then
+                    return toInt(interp_op(ast[2]) / strToNum(state.s[ast[3][2]]))
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == ARRAY_REF) then
+                    return toInt(interp_op(ast[2]) / strToNum(state.a[ast[3][2][1]][ast[3][3][1]]))
+                end 
+            elseif(ast[1][2] == "%") then
+               if(ast[2][1] == NUMLIT_VAL and ast[3][1] == NUMLIT_VAL) then
+                    return strToNum(ast[2][2]) % strToNum(ast[3][2])
+                elseif(ast[2][1] == NUMLIT_VAL and ast[3][1] == ID_VAL) then
+                    return strToNum(ast[2][2]) % state.s[arr[3][2]]
+                elseif(ast[2][1] == ID_VAL and ast[3][1] == NUMLIT_VAL) then
+                    return strToNum(state.s[ast[2][2]]) % strToNum(ast[3][2])
+                elseif(ast[2][1] == ID_VAL and ast[3][1] == ID_VAL) then
+                    return strToNum(state.s[ast[2][2]]) % strToNum(state.s[ast[3][2]])
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == NUMLIT_VAL) then
+                    return interp_op(ast[2]) % strToNum(ast[3][2])
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == ID_VAL) then
+                    return interp_op(ast[2]) % strToNum(state.s[ast[3][2]])
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == ARRAY_REF) then
+                    return interp_op(ast[2]) % strToNum(state.a[ast[3][2][1]][ast[3][3][1]])
+                end
+            elseif(ast[1][2] == "==") then
+               if(ast[2][1] == NUMLIT_VAL and ast[3][1] == NUMLIT_VAL) then
+                    return boolToInt(strToNum(ast[2][2]) == strToNum(ast[3][2]))
+                elseif(ast[2][1] == NUMLIT_VAL and ast[3][1] == ID_VAL) then
+                    return boolToInt(strToNum(ast[2][2]) == state.s[arr[3][2]])
+                elseif(ast[2][1] == ID_VAL and ast[3][1] == NUMLIT_VAL) then
+                    return boolToInt(strToNum(state.s[ast[2][2]]) == strToNum(ast[3][2]))
+                elseif(ast[2][1] == ID_VAL and ast[3][1] == ID_VAL) then
+                    return boolToInt(strToNum(state.s[ast[2][2]]) == strToNum(state.s[ast[3][2]]))
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == NUMLIT_VAL) then
+                    return interp_op(ast[2]) % strToNum(ast[3][2])
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == ID_VAL) then
+                    return interp_op(ast[2]) % strToNum(state.s[ast[3][2]])
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == ARRAY_REF) then
+                    return interp_op(ast[2]) % strToNum(state.a[ast[3][2][1]][ast[3][3][1]])
+                end
+                
+            elseif(ast[1][2] == "!=") then
+               if(ast[2][1] == NUMLIT_VAL and ast[3][1] == NUMLIT_VAL) then
+                    return boolToInt(strToNum(ast[2][2]) ~= strToNum(ast[3][2]))
+                elseif(ast[2][1] == NUMLIT_VAL and ast[3][1] == ID_VAL) then
+                    return boolToInt(strToNum(ast[2][2]) ~= state.s[arr[3][2]])
+                elseif(ast[2][1] == ID_VAL and ast[3][1] == NUMLIT_VAL) then
+                    return boolToInt(strToNum(state.s[ast[2][2]]) ~= strToNum(ast[3][2]))
+                elseif(ast[2][1] == ID_VAL and ast[3][1] == ID_VAL) then
+                    return boolToInt(strToNum(state.s[ast[2][2]]) ~= strToNum(state.s[ast[3][2]]))
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == NUMLIT_VAL) then
+                    return boolToInt(interp_op(ast[2]) == strToNum(ast[3][2])))
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == ID_VAL) then
+                    return boolToInt(interp_op(ast[2]) == strToNum(state.s[ast[3][2]]))
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == ARRAY_REF) then
+                    return boolToInt(interp_op(ast[2]) strToNum(state.a[ast[3][2][1]][ast[3][3][1]]))
+                end
+                
+            elseif(ast[1][2] == "<") then
+               if(ast[2][1] == NUMLIT_VAL and ast[3][1] == NUMLIT_VAL) then
+                    return boolToInt(strToNum(ast[2][2]) < strToNum(ast[3][2]))
+                elseif(ast[2][1] == NUMLIT_VAL and ast[3][1] == ID_VAL) then
+                    return boolToInt(strToNum(ast[2][2]) < state.s[arr[3][2]])
+                elseif(ast[2][1] == ID_VAL and ast[3][1] == NUMLIT_VAL) then
+                    return boolToInt(strToNum(state.s[ast[2][2]]) < strToNum(ast[3][2]))
+                elseif(ast[2][1] == ID_VAL and ast[3][1] == ID_VAL) then
+                    return boolToInt(strToNum(state.s[ast[2][2]]) < strToNum(state.s[ast[3][2]]))
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == NUMLIT_VAL) then
+                    return boolToInt(interp_op(ast[2]) < strToNum(ast[3][2]))
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == ID_VAL) then
+                    return boolToInt(interp_op(ast[2]) < strToNum(state.s[ast[3][2]]))
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == ARRAY_REF) then
+                    return boolToInt(interp_op(ast[2]) < strToNum(state.a[ast[3][2][1]][ast[3][3][1]]))
+                end
+                
+            elseif(ast[1][2] == "<=") then
+               if(ast[2][1] == NUMLIT_VAL and ast[3][1] == NUMLIT_VAL) then
+                    return boolToInt(strToNum(ast[2][2]) <= strToNum(ast[3][2]))
+                elseif(ast[2][1] == NUMLIT_VAL and ast[3][1] == ID_VAL) then
+                    return boolToInt(strToNum(ast[2][2]) <= state.s[arr[3][2]])
+                elseif(ast[2][1] == ID_VAL and ast[3][1] == NUMLIT_VAL) then
+                    return boolToInt(strToNum(state.s[ast[2][2]]) <= strToNum(ast[3][2]))
+                elseif(ast[2][1] == ID_VAL and ast[3][1] == ID_VAL) then
+                    return boolToInt(strToNum(state.s[ast[2][2]]) <= strToNum(state.s[ast[3][2]]))
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == NUMLIT_VAL) then
+                    return boolToInt(interp_op(ast[2]) % strToNum(ast[3][2]))
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == ID_VAL) then
+                    return boolToInt(interp_op(ast[2]) % strToNum(state.s[ast[3][2]]))
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == ARRAY_REF) then
+                    return boolToInt(interp_op(ast[2]) % strToNum(state.a[ast[3][2][1]][ast[3][3][1]]))
+                end
+                
+            elseif(ast[1][2] == ">") then
+               if(ast[2][1] == NUMLIT_VAL and ast[3][1] == NUMLIT_VAL) then
+                    return boolToInt(strToNum(ast[2][2]) > strToNum(ast[3][2]))
+                elseif(ast[2][1] == NUMLIT_VAL and ast[3][1] == ID_VAL) then
+                    return boolToInt(strToNum(ast[2][2]) > state.s[arr[3][2]])
+                elseif(ast[2][1] == ID_VAL and ast[3][1] == NUMLIT_VAL) then
+                    return boolToInt(strToNum(state.s[ast[2][2]]) > strToNum(ast[3][2]))
+                elseif(ast[2][1] == ID_VAL and ast[3][1] == ID_VAL) then
+                    return boolToInt(strToNum(state.s[ast[2][2]]) > strToNum(state.s[ast[3][2]]))
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == NUMLIT_VAL) then
+                    return interp_op(ast[2]) % strToNum(ast[3][2])
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == ID_VAL) then
+                    return interp_op(ast[2]) % strToNum(state.s[ast[3][2]])
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == ARRAY_REF) then
+                    return interp_op(ast[2]) % strToNum(state.a[ast[3][2][1]][ast[3][3][1]])
+                end
+                
+            elseif(ast[1][2] == ">=") then
+               if(ast[2][1] == NUMLIT_VAL and ast[3][1] == NUMLIT_VAL) then
+                    return boolToInt(strToNum(ast[2][2]) >= strToNum(ast[3][2]))
+                elseif(ast[2][1] == NUMLIT_VAL and ast[3][1] == ID_VAL) then
+                    return boolToInt(strToNum(ast[2][2]) >= state.s[arr[3][2]])
+                elseif(ast[2][1] == ID_VAL and ast[3][1] == NUMLIT_VAL) then
+                    return boolToInt(strToNum(state.s[ast[2][2]]) >= strToNum(ast[3][2]))
+                elseif(ast[2][1] == ID_VAL and ast[3][1] == ID_VAL) then
+                    return boolToInt(strToNum(state.s[ast[2][2]]) >= strToNum(state.s[ast[3][2]]))
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == NUMLIT_VAL) then
+                    return interp_op(ast[2]) % strToNum(ast[3][2])
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == ID_VAL) then
+                    return interp_op(ast[2]) % strToNum(state.s[ast[3][2]])
+                elseif(type(ast[2][1]) == "table" and ast[3][1] == ARRAY_REF) then
+                    return interp_op(ast[2]) % strToNum(state.a[ast[3][2][1]][ast[3][3][1]])
+                end
+                
+            end
+        elseif(ast[1][1] == UN_OP) then
+            if(ast[1][2] == "-" and ast[2][1] == NUMLIT_VAL) then
+                return strToNum(ast[2][2]) * (-1)
+            elseif(ast[1][2] == "+" and ast[2][1] == NUMLIT_VAL) then
+                return strToNum(ast[2][2])
+            elseif(ast[1][2] == "-" and ast[2][1] == ID_VAL) then
+                return strToNum(state.s[ast[2][2]]) * (-1)
+            elseif(ast[1][2] == "+" and ast[2][1] == ID_VAL) then
+                return strToNum(state.s[ast[2][2]])
+            end
+        end
+    end
+    
+    local function interp_set(ast)
+        assert(ast[1] == SET_STMT)
+        if(ast[2][1] == ID_VAL) then
+            if(ast[3][1] == NUMLIT_VAL) then
+                state.s[ast[2][2]] = strToNum(ast[3][2])
+            elseif(ast[3][1] == ID_VAL) then
+                state.s[ast[2][2]] = state.s[ast[3][2]]
+            elseif(ast[3][1] == ARRAY_REF) then
+                state.s[ast[2][2]] = strToNum(state.a[ast[3][1][2]][ast[3][2][2]])
+            elseif(ast[3][1][1] == BIN_OP or ast[3][1][1] == UN_OP) then
+                state.s[ast[2][2]] = interp_op(ast[3])
+            end
+        elseif(ast[2][1] == ARRAY_REF) then
+            if(ast[3][1] == NUMLIT_VAL) then
+                if(state.a[ast[2][2][2]] == nil) then
+                    state.a[ast[2][2][2]] = {}
+                end
+                state.a[ast[2][2][2]][strToNum(ast[2][3][2])] = strToNum(ast[3][2])
+            end
+        end
+    end
+
     
     local function interp_stmt(ast)
-        if (ast[1] == SET_STMT) then
+        if(ast[1] == SET_STMT) then
             interp_set(ast)
-        elseif (ast[1] == PRNT_STMT) then
-            if (ast[2][1] == STRLIT_VAL) then
+        elseif(ast[1] == PRINT_STMT) then
+            if(ast[2][1] == STRLIT_VAL) then
                 outcall(ast[2][2]:sub(2,ast[2][2]:len()-1))
+            elseif(ast[2][1] == ID_VAL) then
+                if(state.s[ast[2][2]] ~= nil) then
+                    outcall(numToStr((state.s[ast[2][2]])))
+                else
+                    outcall("0")
+                end
+            elseif(ast[2][1] == NUMLIT_VAL) then
+                outcall(numToStr(ast[2][2]))
+            elseif(ast[2][1] == ARRAY_REF) then
+                if(state.a[ast[2][2][2]] ~= nil) then
+                    if(state.a[ast[2][2][2]][strToNum(ast[2][3][2])] ~= nil) then
+                        outcall(numToStr(state.a[ast[2][2][2]][strToNum(ast[2][3][2])]))
+                    else
+                        outcall("0")
+                    end
+                else
+                    outcall("0")
+                end
+            elseif(ast[2][1][1] == UN_OP or ast[2][1][1] == BIN_OP) then
+                outcall(numToStr(interp_op(ast[2])))
             else
-                outcall("poop\n")
             end
         elseif (ast[1] == NL_STMT) then
             outcall("\n")
-        elseif (ast[1] == INPUT_STMT) then
+        elseif(ast[1] == INPUT_STMT) then
             if(ast[2][1] == ID_VAL) then
-                state[ast[2][2]] = incall()
+                state.s[ast[2][2]] = strToNum(incall())
+            end
+        elseif(ast[1] == WHILE_STMT) then
+            
+        elseif(ast[1] == IF_STMT) then 
         else
             outcall("AAAAAAAAAAAAAAAAAA\n")
         end
     end
 
-    local function interp_set(abtree)
-    end
-    
-    local function interp_arr(abtree)
-    end
-    
     local function interp_stmt_list(ast)
         assert(ast[1] == STMT_LIST)
         for k = 2, #ast do
@@ -121,5 +378,6 @@ function interpit.interp(ast, state, incall, outcall)
     return state
 end
 
+-- Export Modulue
 
 return interpit
