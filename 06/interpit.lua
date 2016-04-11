@@ -102,6 +102,8 @@ function interpit.interp(ast, state, incall, outcall)
             return strToNum(state.s[astbit[2]])
         elseif(astbit[1] == ARRAY_REF) then
             return strToNum(state.a[astbit[2][2]][strToNum(astbit[3][2])])
+        elseif(astbit[1] == BIN_OP or astbit[1] == UN_OP) then 
+            return interp_op(astbit)
         end
     end
     
@@ -109,7 +111,7 @@ function interpit.interp(ast, state, incall, outcall)
     -- function interp_op
     -- takes current ast
     -- handles uniary and binary operators, returns what it needs to
-    local function interp_op(ast)
+    function interp_op(ast)
         assert(ast[1][1] == BIN_OP or ast[1][1] == UN_OP)
         
         if(ast[1][1] == BIN_OP) then
@@ -306,7 +308,7 @@ function interpit.interp(ast, state, incall, outcall)
         elseif(ast[1] == WHILE_STMT) then
             interp_while(ast)
         elseif(ast[1] == IF_STMT) then
-            interp_if(ast[2])
+            interp_if(ast)
         else
             outcall("AAAAAAAAAAAAAAAAAA\n")
         end
@@ -320,21 +322,11 @@ function interpit.interp(ast, state, incall, outcall)
     end
 
     function interp_if(ast)
-        if(type(ast[1]) ~= "table") then
-            if(getAst(ast) ~= 0) then
-                if(ast[2] ~= nil) then
-                    interp_stmt_list(ast[2])
-                end
-            else
-                if(getAst(ast[3]) ~= 0) then
-                    interp_stmt_list(ast[5])
-                end
-            end
-        else
-            if(interp_op(ast[2]) ~= 0) then
-                interp_stmt_list(ast[3])
-            end
+        if(getAst(ast[2]) ~= 0) then
+            interp_stmt_list(ast[3])
+            elseif()
         end
+        
     end
     
     function interp_while(ast)
