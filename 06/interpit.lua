@@ -102,7 +102,7 @@ function interpit.interp(ast, state, incall, outcall)
             return strToNum(state.s[astbit[2]])
         elseif(astbit[1] == ARRAY_REF) then
             return strToNum(state.a[astbit[2][2]][strToNum(astbit[3][2])])
-        elseif(astbit[1] == BIN_OP or astbit[1] == UN_OP) then 
+        elseif(astbit[1][1] == BIN_OP or astbit[1][1] == UN_OP) then
             return interp_op(astbit)
         end
     end
@@ -272,6 +272,7 @@ function interpit.interp(ast, state, incall, outcall)
 
     
     local function interp_stmt(ast)
+
         if(ast[1] == SET_STMT) then
             interp_set(ast)
         elseif(ast[1] == PRINT_STMT) then
@@ -309,11 +310,11 @@ function interpit.interp(ast, state, incall, outcall)
             interp_while(ast)
         elseif(ast[1] == IF_STMT) then
             interp_if(ast)
-        else
-            outcall("AAAAAAAAAAAAAAAAAA\n")
         end
     end
 
+    -- function interp_stmt_list
+    -- calls interp stmt on next bit of ast
     local function interp_stmt_list(ast)
         assert(ast[1] == STMT_LIST)
         for k = 2, #ast do
@@ -321,15 +322,36 @@ function interpit.interp(ast, state, incall, outcall)
         end
     end
 
+    -- function interp_if
+    -- takes current ast at if statement
+    -- handles ifs, calling interp_stmt_list when appropriate
     function interp_if(ast)
-        if(getAst(ast[2]) ~= 0) then
-            interp_stmt_list(ast[3])
-            elseif()
+        local i = 2
+        while(true) do
+            if(getAst(ast[i]) ~= 0) then
+                interp_stmt_list(ast[(i+1)])
+                break
+            elseif(ast[i+2] == nil) then
+                break
+            elseif(ast[i+2] ~= nil) then
+                if(ast[i+2][1] == STMT_LIST) then
+                    interp_stmt_list(ast[i+2])
+                    break
+                else
+                    i = i + 2
+                end
+            else
+                i = i + 2
+            end
         end
-        
     end
-    
+   
+    -- function interp_while
+    -- like interp_if but for while loops
     function interp_while(ast)
+        while(getAst(ast[2]) ~= 0) do
+            interp_stmt_list(ast[3])
+        end
     end
     
     interp_stmt_list(ast)
