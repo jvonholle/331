@@ -1,0 +1,23 @@
+#! /home/ubuntu/workspace/06/zebu.lua
+# Zebu Example #2
+# By GGC 2012-02-18
+# Print all Fibonacci numbers less than 1000
+
+print "Fibonacci Numbers" nl
+set prev = 1   # Previous Fibo
+set curr = 0   # Current Fibo
+set which = 0  # Which Fibo are we printing
+print "How many? "
+input how_many
+while which <= how_many
+    print "F("
+    print which
+    print ") = "
+    print curr nl
+
+    set next = prev + curr
+    set prev = curr
+    set curr = next
+
+    set which = which + 1
+end

@@ -1,0 +1,22 @@
+#! /home/ubuntu/workspace/06/zebu.lua
+
+# factorial.zebu
+# quick dirty thing to calculate factorials
+# Jimmy Von Holle
+
+print "Factorial!" nl
+set not_done = 1
+while(not_done)
+    print "Whatchu wanna do?" nl
+    print "> "
+    input i
+    set output = i
+    while i > 1
+        set output = output * (i-1)
+        set i = i - 1
+    end
+    print output nl
+    print "Do another?" nl
+    print "(0 for no) "
+    input not_done
+end

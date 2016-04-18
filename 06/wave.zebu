@@ -1,0 +1,20 @@
+#! /home/ubuntu/workspace/06/zebu.lua
+
+# wave.zebu
+# dumb thing to print "waves" to the console
+# Jimmy Von Holle 4/13/16
+
+set i = 0
+while i < 10
+    set j = 0
+    while j < 30
+        set k = 0
+        while k < j
+            print "*"
+            set k = k + 1
+        end
+        set j = j + 1
+        nl
+    end
+    set i = i + 1
+end

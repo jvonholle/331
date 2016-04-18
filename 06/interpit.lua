@@ -95,6 +95,9 @@ function interpit.interp(ast, state, incall, outcall)
         end
     end
 
+    -- function getAst
+    -- takes part of ast (astbit)
+    -- figures out what it is and returns the appropriate value as a number
     local function getAst(astbit)
         if(astbit[1] == NUMLIT_VAL) then
             return strToNum(astbit[2])
@@ -252,6 +255,9 @@ function interpit.interp(ast, state, incall, outcall)
         end
     end
     
+    -- fucntion interp_set
+    -- takes ast
+    -- sets variable as described by ast
     local function interp_set(ast)
         assert(ast[1] == SET_STMT)
         if(ast[2][1] == ID_VAL) then
@@ -270,7 +276,10 @@ function interpit.interp(ast, state, incall, outcall)
         end
     end
 
-    
+    -- function interp_stmt
+    -- takes ast
+    -- calls apropirate function for statement
+    -- handles print and input statements internaly
     local function interp_stmt(ast)
 
         if(ast[1] == SET_STMT) then
