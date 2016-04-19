@@ -7,12 +7,13 @@
 
 (define (advance alist count)
   (if (null? alist) '()
-      (if (= (remainder count 2) 0) `(list (car alist) (advance (cdr alist) (+ count 1)))
+      (if (= (remainder count 2) 0) (cons (car alist) (advance (cdr alist) (+ count 1)))
           (advance (cdr alist) (+ count 1)))))
 
 ; evenitems
 ; takes a list, returns all the items at an even index
 (define (evenitems inlist)
-  (list (car inlist) (advance (cdr inlist) 1)))
+  (if (null? inlist) '()
+  (cons (car inlist) (advance (cdr inlist) 1))))
   
     
