@@ -1,0 +1,5 @@
+more slides:
+    flow of control
+new demo program
+    sine wave with some kind of fibo nonsense (in an opcode?)
+
